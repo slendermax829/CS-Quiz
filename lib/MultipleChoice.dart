@@ -4,7 +4,7 @@ class MultipleChoice extends Question
 {
   final num ansIndex;
 
-  MultipleChoice(num qNo, String prompt,this.ansIndex,List<String> choices)
+  MultipleChoice(num qNo, String prompt, this.ansIndex, List<String> choices)
   :super(qNo,prompt,QuestionType.MULTIPLE_CHOICE,choices);
 
   @override

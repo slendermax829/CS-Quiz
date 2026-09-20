@@ -28,7 +28,6 @@ Future<void> main() async{
     expect(mc.choices.length, 2, reason: 'Multiple choice should contain all choices to question');
 
   });
-
   test('Fill In Blank', () {
     num qNo = 2;
     QuestionType qType = QuestionType.FILL_IN_BLANK;
@@ -39,5 +38,25 @@ Future<void> main() async{
     expect(fb.type, 'fill_in_blank', reason: 'Type is not correct');
     expect(fb.qNo, 2, reason: 'Incorrect qNo');
     expect(fb.choices.isEmpty, true, reason: 'Fill in the blank should not contain options');
+  });
+
+  test('API Response', () async{
+    var quizResponse = await HttpServer.fetchQuiz(1); // from API. See HTTPServer Base URL
+
+    num qNo = quizResponse.quizNo;
+    List<Question> questions = quizResponse.questions;
+
+    // for(Question q in questions)
+    // {
+    //   print(q.qNo);
+    //   print(q.prompt);
+    //   print('${q.choices}\n');
+      
+    // }
+
+    expect(questions[0].type, 'multiple_choice', reason: 'type is not correct from response');
+    expect(questions[3].choices.length, 4, reason: 'Question 4 should contain 4 options' );
+    expect(qNo, 1, reason: 'qNo should be Quiz #1');
+    expect(questions[5].choices.length, 0, reason: 'Question 5 should not contain choices it is a Fill in Blank Q');
   });
 }
