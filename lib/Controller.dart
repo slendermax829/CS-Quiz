@@ -16,8 +16,17 @@ class Controller
         if(!conn)
           exit(1);
 
+      mainLoop();
+
       }catch(e){
         throw 'An error has occurred $e';
       }
+  }
+
+  void mainLoop()
+  {
+
+    print(bluePen('This is the main loop'));
+
   }
 }

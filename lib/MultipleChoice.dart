@@ -1,0 +1,30 @@
+import 'package:c_s__quiz/Question.dart';
+
+class MultipleChoice extends Question
+{
+  final num ansIndex;
+
+  MultipleChoice(num qNo, String prompt,this.ansIndex,List<String> choices)
+  :super(qNo,prompt,QuestionType.MULTIPLE_CHOICE,choices);
+
+  @override
+  String toString()
+  {
+    return '''
+  $qNo.
+  $prompt\n
+  $choices
+  ''';
+  }
+
+  @override
+  String getAns() 
+  {
+    return (ansIndex + 1).toString();
+  }
+
+  @override
+  bool checkAns([num? input]) {
+    return input == ansIndex;
+  }
+}
