@@ -1,12 +1,15 @@
 import 'dart:io';
 import 'package:ansicolor/ansicolor.dart';
 import 'package:c_s__quiz/HttpServer.dart';
+import 'package:c_s__quiz/QuestionPool.dart';
 
 class Controller 
 {
   static AnsiPen redPen = AnsiPen()..red();
   static AnsiPen greenPen = AnsiPen()..green();
   static AnsiPen bluePen = AnsiPen()..blue();
+
+  QuestionPool qPool = QuestionPool();
 
   Future<void> init() async
   {
@@ -16,6 +19,7 @@ class Controller
         if(!conn)
           exit(1);
 
+      await qPool.populatePool();
       mainLoop();
 
       }catch(e){

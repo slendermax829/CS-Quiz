@@ -3,6 +3,7 @@ import 'package:c_s__quiz/Question.dart';
 import 'package:c_s__quiz/MultipleChoice.dart';
 import 'package:c_s__quiz/FillBlank.dart';
 import 'package:c_s__quiz/HttpServer.dart';
+import 'package:c_s__quiz/QuestionPool.dart';
 import 'package:test/test.dart';
 
 Future<void> main() async{
@@ -41,7 +42,7 @@ Future<void> main() async{
   });
 
   test('API Response', () async{
-    var quizResponse = await HttpServer.fetchQuiz(1); // from API. See HTTPServer Base URL
+    var quizResponse = await HttpServer.testFetch(1); // from API. See HTTPServer Base URL
 
     num qNo = quizResponse.quizNo;
     List<Question> questions = quizResponse.questions;
@@ -58,5 +59,20 @@ Future<void> main() async{
     expect(questions[3].choices.length, 4, reason: 'Question 4 should contain 4 options' );
     expect(qNo, 1, reason: 'qNo should be Quiz #1');
     expect(questions[5].choices.length, 0, reason: 'Question 5 should not contain choices it is a Fill in Blank Q');
+  });
+
+  test('QuestionPool.populatePool(API)', () async {
+    final pool = QuestionPool();
+
+    await pool.populatePool();
+
+    //Question q = pool.getQuestion(7,10);
+
+    //print(q.prompt);
+
+    expect(pool.numOfQuizzes, greaterThan(0), reason: 'Expected quizzes to load from the API');
+    expect(pool.numOfQuestions, greaterThan(0), reason: 'Expected questions to load from the API');
+    expect(pool.getFromQuiz(7).length, 10, reason: 'Quiz 07 should contain 10 questions in total');
+    expect(pool.getQuestion(7, 10).type, 'fill_in_blank', reason: 'Quiz 07, Question 10 should be a fill in blank question');
   });
 }
