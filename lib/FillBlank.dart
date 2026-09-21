@@ -1,5 +1,6 @@
 import 'package:c_s__quiz/Question.dart';
 
+/// An extension class from Question where it handles fill in the blank logic
 class FillBlank extends Question
 {
   final List<String> ans;

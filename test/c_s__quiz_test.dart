@@ -75,4 +75,30 @@ Future<void> main() async{
     expect(pool.getFromQuiz(7).length, 10, reason: 'Quiz 07 should contain 10 questions in total');
     expect(pool.getQuestion(7, 10).type, 'fill_in_blank', reason: 'Quiz 07, Question 10 should be a fill in blank question');
   });
+
+  test('RandomQuestionsGet', () async{
+    final pool = QuestionPool();
+    await pool.populatePool();
+
+    List<Question> RandChosen = pool.getRandQuestions(range:15);
+    for(Question q in RandChosen)
+    {
+      print(q.prompt);
+      print(q.choices);
+      print('${q.type}\n');
+    }
+
+    expect(RandChosen.length, 15, reason: 'the length of randQuestions should be 15');
+  });
+
+  test('QuestionsFromQuiz', () async{
+    final pool = QuestionPool();
+    await pool.populatePool();
+
+    List<Question> fromQuiz = pool.getFromQuiz(3);
+    Question q = fromQuiz.firstWhere((q)=> q.qNo == 5);
+
+    expect(fromQuiz.length, 10, reason: 'number of questions should be 10');
+    expect(q.type, 'multiple_choice',reason: 'qNo 5 should be multiple choice'); 
+  });
 }

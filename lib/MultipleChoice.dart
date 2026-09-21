@@ -1,5 +1,6 @@
 import 'package:c_s__quiz/Question.dart';
 
+/// An extension class from Question where it handles multiple choice logic
 class MultipleChoice extends Question
 {
   final num ansIndex;
