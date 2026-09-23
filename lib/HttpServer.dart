@@ -3,7 +3,7 @@ import 'package:c_s__quiz/Quiz.dart';
 import 'package:console_bars/console_bars.dart';
 import 'package:c_s__quiz/Question.dart';
 import 'package:c_s__quiz/Controller.dart';
-import 'package:c_s__quiz/Hud.dart';
+import 'package:c_s__quiz/QuizView.dart';
 import 'package:http/http.dart' as http;
 
 /// The service used to retrieve quiz response data from the provided API
@@ -23,15 +23,16 @@ class HttpServer
 
     if(response.statusCode != 200)
     {
-      print(Hud.redPen('CONNECTION Failed'));
-      print(Hud.redPen('Status Code ${response.statusCode}'));
+      print(QuizView.redPen('CONNECTION Failed'));
+      print(QuizView.redPen('Status Code ${response.statusCode}'));
       
       return false;
     }
 
-    print(Hud.greenPen('CONNECTION SUCCESSFUL'));
+    print(QuizView.greenPen('CONNECTION SUCCESSFUL\n'));
     return true;
   }
+
   /// Creates a [Map<num, List<Question>>] for the pool of questions
   /// Where [num] is the Quiz No and [List<Question>] is the list of questions that belong with the quiz
   static Future<List<Quiz>> fetchQuizzes() async
@@ -58,7 +59,7 @@ class HttpServer
         throw 'An error had occured trying to fetch quizzes: $e';
       }
     }
-    print(Hud.greenPen('\nCOMPLETE\n'));
+    print(QuizView.greenPen('\nCOMPLETE\n'));
     return quizList;
   }
 
@@ -73,9 +74,11 @@ class HttpServer
 
     if(jsonData['response'] == false)
     {
+      print(QuizView.redPen('Quiz: $quizNumber not retrieved, Reason: ${jsonData['reason']}'));
       //print('${jsonData['reason']}');
       return false;
     }
+    print(QuizView.greenPen('Quiz: $quizNumber retrieved.'));
     return true;
   }
 

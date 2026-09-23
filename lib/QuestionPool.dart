@@ -11,6 +11,7 @@ class QuestionPool
 
   int get numOfQuizzes => _quizzes.length;
   int get numOfQuestions => _questions.length;
+  List<int> get quizNumbers => _quizzes.map((quiz) => quiz.quizNum).toList();
 
   QuestionPool();
 
@@ -61,18 +62,23 @@ class QuestionPool
 
   }
 
-  Question getQuestion({required int quizNo, required int questionNo})
+  Question? getQuestion({required int quizNo, required int questionNo})
   {
+    if(!quizNumbers.contains(quizNo))
+    {
+      return null;
+    }
+
     var quiz = _quizzes.firstWhere((q)=> q.quizNum == quizNo);
 
-    return quiz.questions.firstWhere((qu)=> qu.qNo == questionNo);
+    return quiz.questions.firstWhere((qu)=> qu.qNo == questionNo, orElse: null);
   }
 
-  Question getRandQuestion()
+  Question? getRandQuestion()
   {
     var random = math.Random();
 
     return _questions[random.nextInt(numOfQuestions)];
   }
-  
+
 }

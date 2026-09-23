@@ -127,4 +127,14 @@ Future<void> main() async{
 
     expect(question.checkAns(input),true,reason: 'Answer should be \'foundation\'');
   });
+
+  test('GetQuizNo', () async{
+    final pool = QuestionPool();
+    await pool.populatePool();
+    
+    var daList = pool.quizNumbers;
+    print(daList);
+
+    expect(daList.length, 8, reason: 'Total Quizzes should be 8 in total');
+  });
 }
