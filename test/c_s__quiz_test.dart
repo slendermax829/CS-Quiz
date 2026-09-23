@@ -137,4 +137,13 @@ Future<void> main() async{
 
     expect(daList.length, 8, reason: 'Total Quizzes should be 8 in total');
   });
+
+  test('toStringMC', () async{
+    final testQuiz = await HttpServer.testFetch(1);
+    Question question = testQuiz.questions.firstWhere((qu)=> qu.qNo == 1);
+
+    print(question.toString());
+
+    //expect(question.checkAns())
+  });
 }

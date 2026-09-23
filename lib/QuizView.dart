@@ -81,7 +81,7 @@ class QuizView
         continue;
       }
 
-      return stdin.readLineSync()?.toLowerCase(); // in case null
+      return input;
     }
   }
 

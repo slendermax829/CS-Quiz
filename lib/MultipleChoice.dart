@@ -10,8 +10,8 @@ class MultipleChoice extends Question {
   @override
   String toString() {
     return '''
-  $qNo.
-  $prompt\n
+  $qNo. $prompt\n
+  ${options.asMap().entries.map((entry) => '${entry.key + 1}. ${entry.value}').join(', ')}
   ''';
   }
 

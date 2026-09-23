@@ -1,5 +1,4 @@
 import 'dart:io';
-import 'package:ansicolor/ansicolor.dart';
 import 'package:c_s__quiz/HttpServer.dart';
 import 'package:c_s__quiz/QuizView.dart';
 import 'package:c_s__quiz/QuestionPool.dart';
@@ -15,10 +14,9 @@ class Controller
   late QuestionPool _qPool;
   late QuizView _view;
 
-  late bool _isRandomQuiz;
   late bool _isNumberedQuiz;
 
-  late List<Question> _subSet;
+  List<Question>? _subSet;
 
   Controller();
   
@@ -51,30 +49,32 @@ class Controller
     
     int menuChoice = _view.displayMenu(isPractice);
 
-    switch(menuChoice)
+    if(menuChoice == 1)
     {
-      case 1:
-        int quizChoice = _view.displayQuizzes(_qPool.quizNumbers);
-        _isNumberedQuiz = true;
-        _isRandomQuiz = false;
-        setUpQuiz(quizChoice: quizChoice);
-
-      case 2:
-        int randRange = _view.selectRange(_qPool.numOfQuestions);
-        _isNumberedQuiz = false;
-        _isRandomQuiz = true;
-        setUpQuiz();
-
-      case 3:
-        isPractice = !isPractice;
-        _initializeMenu();
-
-      case 4:
-        _quit();
+      int quizChoice = _view.displayQuizzes(_qPool.quizNumbers);
+      _isNumberedQuiz = true;
+      setUpQuiz(quizChoice: quizChoice);
+      mainLoop();
+      return;
     }
 
-    mainLoop();
-    //quit();
+    if(menuChoice == 2)
+    {
+      int randRange = _view.selectRange(_qPool.numOfQuestions);
+      _isNumberedQuiz = false;
+      setUpQuiz(randRange: randRange);
+      mainLoop();
+      return;
+    }
+
+    if(menuChoice == 3)
+    {
+      isPractice = !isPractice;
+      _initializeMenu();
+      return;
+    }
+
+    _quit();
   }
 
   void setUpQuiz({int? quizChoice, int? randRange})
@@ -95,16 +95,25 @@ class Controller
   /// Repeatedly asks questions until the player finishes.
   void mainLoop()
   {
+      var questions = _subSet;
+
+      if(questions == null || questions.isEmpty)
+      {
+        print(QuizView.redPen('No questions were loaded for the selected quiz.'));
+        _initializeMenu();
+        return;
+      }
+
       var score = 0;
       var questionNum = 1;
-      var numOfQuestions = _subSet.length;
+      var numOfQuestions = questions.length;
 
       List<Question> incorrectQuestions = [];
 
       while(true)
       {
         String? userAns;
-        var nextQuestion = _subSet[questionNum-1];
+        var nextQuestion = questions[questionNum-1];
 
         switch(nextQuestion.type)
         {
@@ -114,6 +123,7 @@ class Controller
               isPractice,
               questionNum,
               numOfQuestions);
+           break;
 
           case 'fill_in_blank':
            userAns = _view.promptForFillInBlank(
@@ -121,19 +131,26 @@ class Controller
               isPractice,
               questionNum,
               numOfQuestions);
+           break;
         }
 
         bool isCorrect = nextQuestion.checkAns(userAns ?? '');
 
-        score = isCorrect ? score++ : score;
+        if(isCorrect)
+        {
+          score++;
+        }
+        else
+        {
+          incorrectQuestions.add(nextQuestion);
+        }
 
         _view.showResult(nextQuestion, isCorrect, isPractice);
 
-        if(questionNum == _subSet.length)
+        if(questionNum == questions.length)
         {
           break;
         }
-
         questionNum++;
       }
 
@@ -143,27 +160,24 @@ class Controller
 
   void _getResults(int score, List<Question> incorrectQuestions)
   {
-    var finalScore = ((score/_subSet.length) * 100).round();
-    var correctNum = _subSet.length - incorrectQuestions.length;
+    var finalScore = ((score/_subSet!.length) * 100).round();
+    var correctNum = _subSet!.length - incorrectQuestions.length;
     var incorrectNum = incorrectQuestions.length;
 
     int choice = _view.showScore(incorrectQuestions, finalScore, (correctNum,incorrectNum), isPractice);
 
-    switch(choice)
+    if(choice == 1)
     {
-      case 1:
-        _initializeMenu();
-
-      case 2:
-        _quit();
+      _initializeMenu();
+      return;
     }
+
+    _quit();
 
   }
   
   void _quit()
   {
     _view.displayExit();
-    //print(QuizView.redPen('This is the exit bye...'));
-
   }
 }

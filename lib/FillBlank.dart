@@ -12,8 +12,7 @@ class FillBlank extends Question
   String toString()
   {
     return '''
-  $qNo.
-  ${prompt}\n
+  $qNo. ${prompt}\n
   ''';
   }
 
