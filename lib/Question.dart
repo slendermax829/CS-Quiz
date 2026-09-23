@@ -17,7 +17,7 @@ abstract class Question
   final String _prompt;
   final QuestionType _type;
 
-  List<String>? _choices; //optional, really used only for multiple choice only
+  List<String>? _options; //optional, really used only for multiple choice only
 
   /// The one-based number used when presenting the question.
   num get qNo => _qNo;
@@ -29,10 +29,10 @@ abstract class Question
   String get type => _type.name.toLowerCase();
 
   /// The options used for answering a question.
-  List<String> get choices => _choices ?? [];
+  List<String> get options => _options ?? [];
 
   /// Setter for changing the choices.
-  set choices(List<String> newChoices) => _choices = newChoices;
+  set choices(List<String> newChoices) => _options = newChoices;
 
   /// The number of the question type.
   num get typeNum
@@ -51,7 +51,7 @@ abstract class Question
   }
 
    /// Creates a question with its display number, prompt, and question type.
-  Question(this._qNo, this._prompt, this._type,[this._choices]);
+  Question(this._qNo, this._prompt, this._type,[this._options]);
 
   /// Builds the appropriate question subtype from quiz JSON data.
   factory Question.fromJson(Map<String, dynamic> jsonData, num qNo)
@@ -62,7 +62,7 @@ abstract class Question
     switch(type)
     {
       case 1:
-        num answer = jsonData['answer'] as num;
+        num answer = (jsonData['answer'] as num) - 1;
         List<String> options = (jsonData['options'] as List<dynamic>).map((option) => option.toString()).toList();
 
         return MultipleChoice(
@@ -106,6 +106,6 @@ abstract class Question
   String getAns();
 
   /// Returns whether user input is correct for this question.
-  bool checkAns();
+  bool checkAns(String input);
 
 }

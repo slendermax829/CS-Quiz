@@ -1,7 +1,9 @@
 import 'dart:convert';
+import 'package:c_s__quiz/Quiz.dart';
 import 'package:console_bars/console_bars.dart';
 import 'package:c_s__quiz/Question.dart';
 import 'package:c_s__quiz/Controller.dart';
+import 'package:c_s__quiz/Hud.dart';
 import 'package:http/http.dart' as http;
 
 /// The service used to retrieve quiz response data from the provided API
@@ -21,20 +23,20 @@ class HttpServer
 
     if(response.statusCode != 200)
     {
-      print(Controller.redPen('CONNECTION Failed'));
-      print(Controller.redPen('Status Code ${response.statusCode}'));
+      print(Hud.redPen('CONNECTION Failed'));
+      print(Hud.redPen('Status Code ${response.statusCode}'));
       
       return false;
     }
 
-    print(Controller.greenPen('CONNECTION SUCCESSFUL'));
+    print(Hud.greenPen('CONNECTION SUCCESSFUL'));
     return true;
   }
   /// Creates a [Map<num, List<Question>>] for the pool of questions
   /// Where [num] is the Quiz No and [List<Question>] is the list of questions that belong with the quiz
-  static Future<Map<num,List<Question>>> fetchQuizzes() async
+  static Future<List<Quiz>> fetchQuizzes() async
   {
-    Map<num,List<Question>> pool = {};
+    List<Quiz> quizList = [];
     //final bar = FillingBar(total: quizRange, desc: 'Fetching Quizzes', time: false, percentage: true, scale: 0.2, fill: '#');
 
     for(int i = 1; i <= quizRange; i++)
@@ -48,7 +50,7 @@ class HttpServer
         }
 
         var quizResponse = await _fetchQuiz(i);
-        pool[quizResponse.quizNo] = quizResponse.questions;
+        quizList.add(quizResponse);
         //bar.increment();
 
       }catch(e)
@@ -56,8 +58,8 @@ class HttpServer
         throw 'An error had occured trying to fetch quizzes: $e';
       }
     }
-    print(Controller.greenPen('\nCOMPLETE\n'));
-    return pool;
+    print(Hud.greenPen('\nCOMPLETE\n'));
+    return quizList;
   }
 
   /// Checks wether the quiz is found or not from the response
@@ -77,64 +79,45 @@ class HttpServer
     return true;
   }
 
-  /// Private Function where it returns a Record [{num quizNo, List<Question> questions}] from reading jsonData
-  /// This acts as a helper function for [fetchQuizzes()] to add the record to the pool of questions
-  /// 
-  /// [quizNumber] is the quiz number to retrieve the quiz as well as its questions
-  static Future<({num quizNo, List<Question> questions})>
-  _fetchQuiz(num quizNumber) async
+  static Future<Quiz>
+  _fetchQuiz(int quizNumber) async
   {
     var url = Uri.parse('$baseURL?quiz=quiz${quizNumber.toString().padLeft(2,'0')}');
-    //print(url);
-
     var response = await http.get(url);
 
     if(response.statusCode != 200)
-    {
-      throw 'Failed to retrieve quiz: ${response.statusCode}';
-    }
+      throw 'Failed to retrieve data: ${response.statusCode}';
 
-    // A better way to decode the json response data since some data uses different form of characters that might cause a crash
-    var jsonData = jsonDecode(
-      utf8.decode(response.bodyBytes, allowMalformed: true),
-    ) as Map<String,dynamic>;
-
-    //var jsonData = jsonDecode(response.body) as Map<String,dynamic>;
+    var jsonData = jsonDecode(utf8.decode(response.bodyBytes, allowMalformed: true)) as Map<String, dynamic>;
 
     if(jsonData['response'] != true)
     {
       String reason = jsonData['reason'].toString();
-
-      if(reason.toLowerCase().contains('not found'))
-      {
-        throw 'Quiz: $quizNumber not found.';
-      }
-
-      throw 'Response returned ${jsonData['response']}, Reason: $reason';
+      throw 'Quiz: $quizNumber not found';
     }
 
-    var quizData = jsonData['quiz'] as Map<String,dynamic>;
+    var quizData = jsonData['quiz'] as Map<String, dynamic>;
 
     List<dynamic> questionList = quizData['questions'];
 
     if(questionList.isEmpty)
     {
-      throw 'Quiz is missing the questions array from response';
+      throw 'Quiz is missing the List of Questions from response';
     }
 
-    // creates a List<Question> variable where each value is transformed to a Question value using the factory constructor
-    var questions = questionList.asMap().entries.map((qEntry) {
+    List<Question> questions = questionList.asMap().entries.map((q){
       return Question.fromJson(
-        qEntry.value as Map<String, dynamic>, // sub jsonData for questions
-        qEntry.key + 1 // question number
+        q.value as Map<String, dynamic>,
+        q.key + 1
       );
     }).toList();
 
-    return(quizNo:quizNumber, questions: questions);
-  }
-  
-  /// Testing function that gets one record
-  /// [quizNum] is the quiz number to retrieve the quiz as well as its questions
-  static Future<({num quizNo, List<Question> questions})> testFetch(num quizNum) async => await _fetchQuiz(quizNum); // for test purposes
+    var name = quizData['name'] as String;
 
+    Quiz newQuiz = Quiz(name, quizNumber, questions);
+
+    return newQuiz;
+  }
+
+  static Future<Quiz> testFetch(int quizNum) async => await _fetchQuiz(quizNum);
 }

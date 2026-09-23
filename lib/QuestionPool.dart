@@ -1,100 +1,78 @@
+
 import 'dart:math' as math;
 import 'package:c_s__quiz/HttpServer.dart';
 import 'package:c_s__quiz/Question.dart';
+import "package:c_s__quiz/Quiz.dart";
 
 class QuestionPool 
 {
-  Map<num, List<Question>> _quizQuestions = {};
+  List<Quiz> _quizzes = [];
+  List<Question> _questions = [];
 
-  /// returns the number of overall quizzes from the pool
-  int get numOfQuizzes => _quizQuestions.length;
-
-  /// returns the number of questions from the pool
-  int get numOfQuestions => _quizQuestions.values.fold(0, (total, questions) => total + questions.length);
-
-  /// returns a list of quiz numbers 
-  List<num> get quizzes => _quizQuestions.keys.toList();
+  int get numOfQuizzes => _quizzes.length;
+  int get numOfQuestions => _questions.length;
 
   QuestionPool();
 
-  /// populate the pool by retrieving http response data
   Future<void> populatePool() async
   {
-    if(_quizQuestions.isEmpty)
-      _quizQuestions = await HttpServer.fetchQuizzes();
-
-  }
-
-  /// returns a subset of questions from a certain [quizNo]
-  List<Question> getFromQuiz(num quizNo)
-  {
-    var questions = _quizQuestions[quizNo];
-
-    if (questions == null || questions.isEmpty)
-    {
-      throw 'Quiz not found: $quizNo';
-    }
-    return questions;
-  }
-
-  @Deprecated('Use either getFromQuiz() or getRandQuestions()')
-  Question getQuestion(num quizNo, num questionNo)
-  {
-    var questions = _quizQuestions[quizNo];
-
-    if (questions == null || questions.isEmpty)
-    {
-      throw 'Quiz not found: $quizNo';
-    }
-
-    return questions.firstWhere((question) => question.qNo == questionNo);
-
-  }
-
-  /// returns a subset of random question given a certain range
-  /// 
-  /// [range] default value is set to 10
-  List<Question> getRandQuestions({int range = 10})
-  {
-    if (_quizQuestions.isEmpty)
-    {
-      throw 'Question pool is empty';
-    }
-
-    if(range > 30)
-    {
-      range = 30;
-    }
-
-    List<Question> questions = [];
-    Set<Record> routlette = {};
-
-    final quizNumbers = this.quizzes;
-
-    var quizRNG = math.Random();
-    var questRNG = math.Random();
-
-    for(int i = 0; i < range; i++)
-    {
-      while(true)
+    try{
+      if(_quizzes.isEmpty || _questions.isEmpty)
       {
-        var quizIndex = quizRNG.nextInt(quizNumbers.length);
-        var quizDraw = quizNumbers[quizIndex];
-
-        var quizQuestions = _quizQuestions[quizDraw]!;
-        var questionDraw = questRNG.nextInt(quizQuestions.length);
-
-        var entry = (quizDraw,questionDraw);
-
-        if(!routlette.contains(entry))
-        {
-          routlette.add(entry);
-          questions.add(quizQuestions[questionDraw]);
-          break;
-        }
+        _quizzes.clear();
+        _questions.clear();
       }
+
+      _quizzes = await HttpServer.fetchQuizzes();
+
+      for(int i = 0; i < _quizzes.length; i++)
+      {
+        var currQuestions = _quizzes[i].questions;
+        _questions.addAll(currQuestions);
+      }
+    }catch(e){
+      throw 'Could not fill the pool from http server: $e';
+    }
+  }
+
+  List<Question>? getListFromQuiz(int quizNum)
+  {
+    var quiz = _quizzes.where((q) => q.quizNum == quizNum).firstOrNull;
+
+    if(quiz == null)
+    {
+      return null;
     }
 
-    return questions;
+    return quiz.questions;
   }
+
+  List<Question>? getRandQuestions({int range = 10})
+  {
+    if(range <= 0 || range > _questions.length)
+    {
+      return null;
+    }
+
+    var random = List<Question>.from(_questions);
+    random.shuffle();
+
+    return random.sublist(0, range);
+
+  }
+
+  Question getQuestion({required int quizNo, required int questionNo})
+  {
+    var quiz = _quizzes.firstWhere((q)=> q.quizNum == quizNo);
+
+    return quiz.questions.firstWhere((qu)=> qu.qNo == questionNo);
+  }
+
+  Question getRandQuestion()
+  {
+    var random = math.Random();
+
+    return _questions[random.nextInt(numOfQuestions)];
+  }
+  
 }

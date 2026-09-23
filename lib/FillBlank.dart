@@ -25,7 +25,7 @@ class FillBlank extends Question
   }
 
   @override
-  bool checkAns([String? input]) {
+  bool checkAns(String? input) {
     return input != null && ans.contains(input); 
   }
 

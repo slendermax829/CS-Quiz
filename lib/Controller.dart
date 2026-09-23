@@ -1,25 +1,21 @@
 import 'dart:io';
 import 'package:ansicolor/ansicolor.dart';
 import 'package:c_s__quiz/HttpServer.dart';
+import 'package:c_s__quiz/Hud.dart';
 import 'package:c_s__quiz/QuestionPool.dart';
+import 'package:c_s__quiz/Question.dart';
 
 /// Controller class to load quiz data and running the mainloop
 class Controller 
 {
-  /// Object to produce 'red' text
-  static AnsiPen redPen = AnsiPen()..red();
-
-  /// Object ot produce 'green' text
-  static AnsiPen greenPen = AnsiPen()..green();
-
-  /// Object to produce 'blue' text
-  static AnsiPen bluePen = AnsiPen()..blue();
+   /// flag to specify if a test/quiz is practice only
+  static bool isPractice = false;
 
   /// Source of loaded quiz questions
   final qPool = QuestionPool();
+  final ui = Hud();
 
-  /// flag to specify if a test/quiz is practice only
-  bool isPractice = false;
+  late List<Question> subset;
   
   /// Validates connectivity, fetches the quiz, and loads it into the pool.
   Future<void> init() async
@@ -28,11 +24,14 @@ class Controller
         var conn = await HttpServer.vailidateConnection();
 
         if(!conn)
+        {
           exit(1);
+        }
 
       await qPool.populatePool();
-      print(bluePen('Loaded ${qPool.numOfQuestions} questions from ${qPool.numOfQuizzes}'));
-      mainLoop();
+      print(Hud.bluePen('Loaded ${qPool.numOfQuestions} questions from ${qPool.numOfQuizzes}'));
+      quit();
+      //mainLoop();
 
       }catch(e){
         throw 'An error has occurred $e';
@@ -44,6 +43,13 @@ class Controller
   /// Repeatedly asks questions until the player either finishes or quits.
   void mainLoop()
   {
-    print(bluePen('This is the main loop'));
+      print(Hud.bluePen('This is a Test main loop lol'));
+      
+  }
+  
+  void quit()
+  {
+    print(Hud.redPen('This is the exit bye...'));
+
   }
 }

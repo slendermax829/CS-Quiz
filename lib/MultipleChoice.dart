@@ -1,31 +1,28 @@
 import 'package:c_s__quiz/Question.dart';
 
 /// An extension class from Question where it handles multiple choice logic
-class MultipleChoice extends Question
-{
+class MultipleChoice extends Question {
   final num ansIndex;
 
   MultipleChoice(num qNo, String prompt, this.ansIndex, List<String> choices)
-  :super(qNo,prompt,QuestionType.MULTIPLE_CHOICE,choices);
+    : super(qNo, prompt, QuestionType.MULTIPLE_CHOICE, choices);
 
   @override
-  String toString()
-  {
+  String toString() {
     return '''
   $qNo.
   $prompt\n
-  $choices
   ''';
   }
 
   @override
-  String getAns() 
-  {
+  String getAns() {
     return (ansIndex + 1).toString();
   }
 
   @override
-  bool checkAns([num? input]) {
-    return input == ansIndex;
+  bool checkAns(String input) {
+    var intParsed = int.parse(input) - 1;
+    return intParsed == ansIndex;
   }
 }
