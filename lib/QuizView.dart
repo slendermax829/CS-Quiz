@@ -1,5 +1,5 @@
-import 'package:c_s__quiz/Controller.dart';
 import 'package:c_s__quiz/Question.dart';
+import 'package:c_s__quiz/QuestionPool.dart';
 import 'package:dart_console/dart_console.dart';
 import 'package:ansicolor/ansicolor.dart';
 import 'dart:io';
@@ -85,35 +85,40 @@ class QuizView
     }
   }
 
-  void showResult(Question question, bool isCorrect, bool isPractice) async
+  void showResult(Question question, bool isCorrect)
   {
     _clearScreen();
-    print(isCorrect ? greenPen('Correct') : redPen('Incorrect'));
+    print(isCorrect ? greenPen('CORRECT\n') : redPen('INCORRECT\n'));
 
-    if(!isCorrect && isPractice)
+    switch(isCorrect)
     {
-      print(redPen('Correct Answer(s): ${question.getAns()}'));
+      case true:
+        print(greenPen('Correct Answer(s): ${question.getAns()}'));
+      
+      case false:
+        print(redPen('Correct Answer(s): ${question.getAns()}'));
     }
-
-    Future.delayed(Duration(seconds: 4));
+    sleep(Duration(seconds: 4));
   }
 
-  int showScore(List<Question> questions, int finalScore, (int,int) record, bool isPractice)
+  int showScore(List<Question> incorrectQuestions, int finalScore, (int,int) record, bool isPractice)
   {
-    var total = record.$1 + record.$2;
+    var correct = record.$1;
+    var total = correct + record.$2;
 
     while(true)
     {
       _clearScreen();
-      print('Number of Questions: $total');
-      print(bluePen('UserScore: ${(total * finalScore).round()} / $total'));
-      print(finalScore <= 70 ? greenPen('FINAL: $finalScore') : redPen('FINAL: $finalScore\n'));
+      print(bluePen('Number of Questions: $total'));
+      print(bluePen('UserScore: $correct / $total'));
+      print(finalScore >= 70 ? greenPen('FINAL: $finalScore') : redPen('FINAL: $finalScore\n'));
 
       if(isPractice)
       {
-        for(int i = 0; i < questions.length; i++)
+        print(bluePen('\nQuestions that were incorrect\n'));
+        for(int i = 0; i < incorrectQuestions.length; i++)
         {
-          print(bluePen('Question ${i+1} Answer: ${questions[i].getAns()}'));
+          print(bluePen('- Q.${i+1} Answer: ${incorrectQuestions[i].getAns()}'));
         }
       }
 

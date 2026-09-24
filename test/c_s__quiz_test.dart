@@ -143,7 +143,16 @@ Future<void> main() async{
     Question question = testQuiz.questions.firstWhere((qu)=> qu.qNo == 1);
 
     print(question.toString());
+    print(question.getAns());
 
     //expect(question.checkAns())
+  });
+
+  test('toStringFB', () async{
+    final testQuiz = await HttpServer.testFetch(1);
+    Question question = testQuiz.questions.firstWhere((qu)=> qu.qNo == 2);
+
+    print(question.toString());
+    print(question.getAns());
   });
 }

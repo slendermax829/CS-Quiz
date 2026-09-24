@@ -19,13 +19,16 @@ class FillBlank extends Question
   @override
   String getAns() 
   {
-    return ans.toString();
-    
+    //return ans.toString();
+    return 'Anwers: ${ans.map((a)=> '$a ').toString()}';
   }
 
   @override
-  bool checkAns(String? input) {
-    return input != null && ans.contains(input); 
+  bool checkAns(String? input) 
+  {
+    var answers = ans.map((a) => a.toLowerCase()).toList();
+
+    return input != null && answers.contains(input); 
   }
 
 }

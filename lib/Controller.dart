@@ -145,7 +145,10 @@ class Controller
           incorrectQuestions.add(nextQuestion);
         }
 
-        _view.showResult(nextQuestion, isCorrect, isPractice);
+        if(isPractice)
+        {
+          _view.showResult(nextQuestion, isCorrect);
+        }
 
         if(questionNum == questions.length)
         {

@@ -17,7 +17,7 @@ class MultipleChoice extends Question {
 
   @override
   String getAns() {
-    return (ansIndex + 1).toString();
+    return 'Number: ${(ansIndex + 1).toString()}';
   }
 
   @override
